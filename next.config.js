@@ -89,7 +89,7 @@ const nextConfig = {
     : process.env.NEXT_BUILD_STANDALONE === 'true'
       ? 'standalone'
       : undefined,
-  staticPageGenerationTimeout: 120,
+  staticPageGenerationTimeout: 300,
 
   // 性能优化配置
   compress: true,
@@ -326,7 +326,8 @@ const nextConfig = {
   experimental: {
     scrollRestoration: true,
     // 性能优化实验性功能
-    optimizePackageImports: ['@heroicons/react', 'lodash']
+    optimizePackageImports: ['@heroicons/react', 'lodash'],
+    cpus: 1
   },
   exportPathMap: function (
     defaultPathMap,

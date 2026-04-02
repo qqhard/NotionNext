@@ -16,7 +16,7 @@ export class RateLimiter {
   private windowStart = Date.now()
 
   constructor(
-    private maxRequestsPerMinute = 200,
+    private maxRequestsPerMinute = 90,
     private lockFilePath?: string
   ) { }
 
@@ -87,7 +87,7 @@ export class RateLimiter {
         this.windowStart = Date.now()
       }
 
-      const minInterval = 300
+      const minInterval = 600
       const waitTime = Math.max(0, minInterval - (now - this.lastRequestTime))
       if (waitTime > 0) await new Promise(res => setTimeout(res, waitTime))
 
