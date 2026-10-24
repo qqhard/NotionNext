@@ -11,10 +11,15 @@ jest.mock('@/lib/config', () => ({
 
 const freeAt = Date.parse('2026-10-30T16:00:00Z')
 
-it('links to the Substack post and shows the Beijing free date', () => {
+it('shows the summary, links to the Substack post and shows the Beijing free date', () => {
   const url = 'https://recsysfrontier.substack.com/p/ai-daily-2026-10-24'
-  render(<SubstackPaywall post={{ paywall: { freeAt, url, isPost: true } }} />)
-  expect(screen.getByText('🔒 本期为订阅内容')).toBeInTheDocument()
+  render(
+    <SubstackPaywall
+      post={{ summary: '本期摘要被截断在半句', paywall: { freeAt, url, isPost: true } }}
+    />
+  )
+  expect(screen.getByText('本期摘要被截断在半句…')).toBeInTheDocument()
+  expect(screen.getByText('本期为订阅内容')).toBeInTheDocument()
   expect(screen.getByText('每天的日报')).toBeInTheDocument()
   const link = screen.getByRole('link', { name: '去 Substack 阅读全文' })
   expect(link).toHaveAttribute('href', url)

@@ -1,8 +1,12 @@
 import { siteConfig } from '@/lib/config'
 import { getFreeDay } from '@/lib/utils/paywall'
 
+// 日报摘要在写入 Notion 时被截断，结尾不是标点时补省略号
+const withEllipsis = text =>
+  /[。！？…；.!?;」”）)]$/.test(text.trim()) ? text : `${text.trim()}…`
+
 /**
- * 付费锁定期内代替正文的卡片：订阅权益 + 跳转 Substack + 免费开放日期
+ * 付费锁定期内代替正文：摘要 + 订阅卡片（权益、跳转 Substack、免费开放日期）
  */
 export default function SubstackPaywall({ post }) {
   const paywall = post?.paywall
@@ -14,31 +18,53 @@ export default function SubstackPaywall({ post }) {
     : siteConfig('PAYWALL_SUBSCRIBE_TEXT', '去 Substack 订阅')
 
   return (
-    <section
-      id='substack-paywall'
-      className='my-8 rounded-lg border border-gray-200 bg-gray-50 p-6 dark:border-gray-700 dark:bg-gray-800'>
-      <h2 className='mb-3 text-lg font-bold dark:text-gray-100'>
-        🔒 {siteConfig('PAYWALL_TITLE', '本期为订阅内容')}
-      </h2>
-      {Array.isArray(benefits) && benefits.length > 0 && (
-        <ul className='mb-5 list-disc space-y-1 pl-5 text-sm leading-7 text-gray-600 dark:text-gray-300'>
-          {benefits.map(benefit => (
-            <li key={benefit}>{benefit}</li>
-          ))}
-        </ul>
+    <div id='substack-paywall' className='my-6'>
+      {post.summary && (
+        <p className='text-base leading-8 text-gray-700 dark:text-gray-300'>
+          {withEllipsis(post.summary)}
+        </p>
       )}
-      {paywall.url && (
-        <a
-          href={paywall.url}
-          target='_blank'
-          rel='noopener noreferrer'
-          className='inline-block rounded-md bg-[#276077] px-4 py-2 text-sm text-white hover:opacity-90'>
-          {buttonText}
-        </a>
-      )}
-      <p className='mt-4 text-xs text-gray-500 dark:text-gray-400'>
-        本期将于 {month} 月 {day} 日免费开放
-      </p>
-    </section>
+
+      <section className='mt-6 overflow-hidden rounded-2xl border border-orange-100 bg-gradient-to-br from-orange-50 via-white to-white px-6 py-8 text-center shadow-sm dark:border-gray-700 dark:from-gray-800 dark:via-gray-800 dark:to-gray-800 md:px-10'>
+        <div className='mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-[#FF6719]/10 text-[#FF6719]'>
+          <i className='fas fa-lock text-lg' />
+        </div>
+        <h2 className='mb-2 text-xl font-bold text-gray-900 dark:text-gray-100'>
+          {siteConfig('PAYWALL_TITLE', '本期为订阅内容')}
+        </h2>
+        <p className='mb-6 text-sm text-gray-500 dark:text-gray-400'>
+          订阅 RecsysFrontier，在 Substack 阅读本期全文
+        </p>
+
+        {Array.isArray(benefits) && benefits.length > 0 && (
+          <ul className='mx-auto mb-8 inline-flex flex-col gap-3 text-left text-sm text-gray-700 dark:text-gray-300'>
+            {benefits.map(benefit => (
+              <li key={benefit} className='flex items-start gap-3'>
+                <i className='fas fa-check mt-1 text-xs text-[#FF6719]' />
+                <span>{benefit}</span>
+              </li>
+            ))}
+          </ul>
+        )}
+
+        {paywall.url && (
+          <div>
+            <a
+              href={paywall.url}
+              target='_blank'
+              rel='noopener noreferrer'
+              className='inline-flex items-center gap-2 rounded-full bg-[#FF6719] px-8 py-3 text-base font-semibold text-white shadow-md shadow-orange-200 transition hover:-translate-y-0.5 hover:bg-[#E85A0C] hover:shadow-lg dark:shadow-none'>
+              {buttonText}
+              <i className='fas fa-arrow-right text-sm' />
+            </a>
+          </div>
+        )}
+
+        <p className='mt-5 flex items-center justify-center gap-1.5 text-xs text-gray-400'>
+          <i className='far fa-clock' />
+          本期将于 {month} 月 {day} 日免费开放
+        </p>
+      </section>
+    </div>
   )
 }

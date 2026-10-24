@@ -90,11 +90,22 @@ it.each([undefined, 'any password'])(
     expect(props.post.paywall).toEqual({ freeAt, url: substack, isPost: true })
     expect(props.post.summary).toBe('PUBLIC_SUMMARY')
     expect(props.post.blockMap).toBeUndefined()
+    // 连续的英文串按 1 个词计
+    expect(props.post.wordCount).toBe(1)
+    expect(props.post.readTime).toBe(1)
     expect(props.next.title).toBe('原创')
     expect(JSON.stringify(props)).not.toContain(marker)
-    expect(fetchNotionPageBlocks).not.toHaveBeenCalled()
   }
 )
+
+it('still serves the locked page when the body cannot be counted', async () => {
+  jest.spyOn(Date, 'now').mockReturnValue(Date.parse('2026-10-25T00:00:00Z'))
+  jest.spyOn(console, 'warn').mockImplementation(() => {})
+  fetchNotionPageBlocks.mockRejectedValue(new Error('timeout'))
+  const props = await resolvePostProps({ prefix: 'ai-daily-2026-10-24' })
+  expect(props.post.paywall.url).toBe(substack)
+  expect(props.post.wordCount).toBeUndefined()
+})
 
 it('serves the full body once the paywall ends', async () => {
   jest.spyOn(Date, 'now').mockReturnValue(freeAt)
