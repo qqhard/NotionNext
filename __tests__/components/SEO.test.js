@@ -189,7 +189,8 @@ describe('font config defaults', () => {
     }
   })
 
-  it('does not load large Chinese Google Fonts by default', () => {
+  // 本 fork 有意保留升级前的默认字体（Bitter + Noto Sans/Serif SC），以保持站点外观不变
+  it('loads the site web fonts by default', () => {
     delete process.env.NEXT_PUBLIC_FONT_URL
     jest.resetModules()
 
@@ -198,7 +199,7 @@ describe('font config defaults', () => {
       ? fontConfig.FONT_URL
       : [fontConfig.FONT_URL]
 
-    expect(defaultFontUrls).not.toEqual(
+    expect(defaultFontUrls).toEqual(
       expect.arrayContaining([
         expect.stringContaining('Noto+Sans+SC'),
         expect.stringContaining('Noto+Serif+SC')
