@@ -103,3 +103,21 @@ it('lists the latest free issues of the same series, newest first', () => {
   ])
   expect(getFreeIssues(current, undefined, now)).toEqual([])
 })
+
+it('locks posts with need_pay checked until it is unchecked', () => {
+  const essay = { ...daily, type: 'Post', tags: ['LLM'], date: { start_date: '2020-01-01' } }
+  const now = Date.parse('2026-10-25T00:00:00Z')
+  expect(getPaywall({ ...essay, need_pay: 'Yes' }, now)).toEqual({
+    freeAt: null,
+    url: daily.substack,
+    isPost: true
+  })
+  expect(getPaywall({ ...essay, type: 'Page', need_pay: 'Yes' }, now)).not.toBeNull()
+  expect(getPaywall({ ...essay, need_pay: 'No' }, now)).toBeNull()
+  expect(getPaywall(essay, now)).toBeNull()
+  // 日报勾选后也不再按 7 天自动开放
+  expect(getPaywall({ ...daily, need_pay: 'Yes' }, freeAt).freeAt).toBeNull()
+  expect(getFreeIssues({ ...daily, need_pay: 'Yes' }, [daily], now)).toEqual([])
+  BLOG.PAYWALL_ENABLE = false
+  expect(getPaywall({ ...essay, need_pay: 'Yes' }, now)).toBeNull()
+})

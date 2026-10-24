@@ -44,6 +44,12 @@ it('asks readers to subscribe when the post has no Substack link yet', () => {
   expect(screen.getByRole('link', { name: '去 Substack 订阅' })).toHaveAttribute('href', url)
 })
 
+it('uses article wording and hides the free date for need_pay posts', () => {
+  render(<SubstackPaywall post={{ paywall: { freeAt: null, url: 'https://x.test', isPost: true } }} />)
+  expect(screen.getByText('本文为订阅内容')).toBeInTheDocument()
+  expect(screen.queryByText(/免费开放/)).not.toBeInTheDocument()
+})
+
 it('renders nothing for unlocked posts', () => {
   const { container } = render(<SubstackPaywall post={{}} />)
   expect(container).toBeEmptyDOMElement()

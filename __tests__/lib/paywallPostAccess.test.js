@@ -130,3 +130,20 @@ it('serves the full body once the paywall ends', async () => {
   expect(props.post.paywall).toBeUndefined()
   expect(JSON.stringify(props.post)).toContain(marker)
 })
+
+it('keeps need_pay posts locked with no free date', async () => {
+  const data = await getOrSetDataWithCache()
+  const index = data.allPages.findIndex(page => page.id === otherId)
+  data.allPages[index] = { ...data.allPages[index], need_pay: 'Yes', summary: 'ESSAY_SUMMARY' }
+  getOrSetDataWithCache.mockResolvedValue(data)
+  jest.spyOn(Date, 'now').mockReturnValue(Date.parse('2030-01-01T00:00:00Z'))
+  const props = await resolvePostProps({ prefix: 'original' })
+  expect(props.post.paywall).toEqual({
+    freeAt: null,
+    url: 'https://recsysfrontier.substack.com/subscribe',
+    isPost: false,
+    freeIssues: []
+  })
+  expect(props.post.summary).toBe('ESSAY_SUMMARY')
+  expect(JSON.stringify(props)).not.toContain(marker)
+})

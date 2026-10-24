@@ -13,7 +13,7 @@ export default function SubstackPaywall({ post }) {
   const paywall = post?.paywall
   if (!paywall) return null
   const benefits = siteConfig('PAYWALL_BENEFITS', [])
-  const { month, day } = getFreeDay(paywall.freeAt)
+  const freeDay = paywall.freeAt ? getFreeDay(paywall.freeAt) : null
   const buttonText = paywall.isPost
     ? siteConfig('PAYWALL_BUTTON_TEXT', '去 Substack 阅读全文')
     : siteConfig('PAYWALL_SUBSCRIBE_TEXT', '去 Substack 订阅')
@@ -31,10 +31,12 @@ export default function SubstackPaywall({ post }) {
           <i className='fas fa-lock text-lg' />
         </div>
         <h2 className='mb-2 text-xl font-bold text-gray-900 dark:text-gray-100'>
-          {siteConfig('PAYWALL_TITLE', '本期为订阅内容')}
+          {freeDay
+            ? siteConfig('PAYWALL_TITLE', '本期为订阅内容')
+            : siteConfig('PAYWALL_MANUAL_TITLE', '本文为订阅内容')}
         </h2>
         <p className='mb-6 text-sm text-gray-500 dark:text-gray-400'>
-          订阅 RecsysFrontier，在 Substack 阅读本期全文
+          订阅 RecsysFrontier，在 Substack 阅读{freeDay ? '本期' : '本文'}全文
         </p>
 
         {Array.isArray(benefits) && benefits.length > 0 && (
@@ -61,10 +63,12 @@ export default function SubstackPaywall({ post }) {
           </div>
         )}
 
-        <p className='mt-5 flex items-center justify-center gap-1.5 text-xs text-gray-400'>
-          <i className='far fa-clock' />
-          本期将于 {month} 月 {day} 日免费开放
-        </p>
+        {freeDay && (
+          <p className='mt-5 flex items-center justify-center gap-1.5 text-xs text-gray-400'>
+            <i className='far fa-clock' />
+            本期将于 {freeDay.month} 月 {freeDay.day} 日免费开放
+          </p>
+        )}
 
         {paywall.freeIssues?.length > 0 && (
           <div className='mx-auto mt-8 max-w-md border-t border-orange-100 pt-6 text-left dark:border-gray-700'>
