@@ -49,4 +49,8 @@ describe('getNotionAPI 的 Cloudflare UA 绕过配置', () => {
     expect(ua).toMatch(/Mozilla\/5\.0/)
     expect(ua).not.toBe('node')
   })
+
+  it('使用当前的 Notion API 地址', () => {
+    expect(getOptions().apiBaseUrl).toBe('https://app.notion.com/api/v3')
+  })
 })
