@@ -1,6 +1,6 @@
 /** @jest-environment node */
 import BLOG from '@/blog.config'
-import { getFreeDay, getPaywall } from '@/lib/utils/paywall'
+import { getFreeDay, getFreeIssues, getPaywall } from '@/lib/utils/paywall'
 import { getPublicPostBlockMap } from '@/lib/utils/publicPost'
 
 jest.mock('@/blog.config', () => ({
@@ -71,4 +71,35 @@ it('keeps paywalled bodies out of RSS, search and list previews', () => {
   Date.now.mockReturnValue(freeAt)
   expect(JSON.stringify(getPublicPostBlockMap(daily, blocks))).toContain('BODY')
   Date.now.mockRestore()
+})
+
+it('lists the latest free issues of the same series, newest first', () => {
+  const now = Date.parse('2026-10-25T00:00:00Z')
+  const issue = (day, extra = {}) => ({
+    ...daily,
+    id: day,
+    title: `AI 日报 ${day}`,
+    href: `/article/ai-daily-${day}`,
+    category: 'AI',
+    date: { start_date: day },
+    ...extra
+  })
+  const pages = [
+    issue('2026-10-14'),
+    issue('2026-10-24'), // 仍在锁定期
+    issue('2026-10-17'),
+    issue('2026-10-16', { category: '推荐' }), // 其他系列
+    issue('2026-10-15', { tags: ['周报'] }), // 日报页面不展示周报
+    issue('2026-10-13', { password: 'x' }),
+    issue('2026-10-12', { status: 'Draft' }),
+    issue('2026-10-11'),
+    issue('2026-10-10')
+  ]
+  const current = { ...pages[1] }
+  expect(getFreeIssues(current, pages, now)).toEqual([
+    { title: 'AI 日报 2026-10-17', href: '/article/ai-daily-2026-10-17', day: '2026-10-17' },
+    { title: 'AI 日报 2026-10-14', href: '/article/ai-daily-2026-10-14', day: '2026-10-14' },
+    { title: 'AI 日报 2026-10-11', href: '/article/ai-daily-2026-10-11', day: '2026-10-11' }
+  ])
+  expect(getFreeIssues(current, undefined, now)).toEqual([])
 })

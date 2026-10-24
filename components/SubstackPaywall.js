@@ -1,3 +1,4 @@
+import SmartLink from '@/components/SmartLink'
 import { siteConfig } from '@/lib/config'
 import { getFreeDay } from '@/lib/utils/paywall'
 
@@ -6,7 +7,7 @@ const withEllipsis = text =>
   /[。！？…；.!?;」”）)]$/.test(text.trim()) ? text : `${text.trim()}…`
 
 /**
- * 付费锁定期内代替正文：摘要 + 订阅卡片（权益、跳转 Substack、免费开放日期）
+ * 付费锁定期内代替正文：摘要 + 订阅卡片（权益、跳转 Substack、免费开放日期、已免费往期）
  */
 export default function SubstackPaywall({ post }) {
   const paywall = post?.paywall
@@ -64,6 +65,28 @@ export default function SubstackPaywall({ post }) {
           <i className='far fa-clock' />
           本期将于 {month} 月 {day} 日免费开放
         </p>
+
+        {paywall.freeIssues?.length > 0 && (
+          <div className='mx-auto mt-8 max-w-md border-t border-orange-100 pt-6 text-left dark:border-gray-700'>
+            <p className='mb-3 text-center text-sm font-semibold text-gray-700 dark:text-gray-300'>
+              往期免费阅读
+            </p>
+            <ul className='flex flex-col gap-1'>
+              {paywall.freeIssues.map(issue => (
+                <li key={issue.href}>
+                  <SmartLink
+                    href={issue.href}
+                    className='group flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-gray-700 transition hover:bg-orange-50 dark:text-gray-300 dark:hover:bg-gray-700'>
+                    <span className='flex-1 truncate group-hover:text-[#FF6719]'>
+                      {issue.title}
+                    </span>
+                    <i className='fas fa-angle-right text-xs text-gray-400 group-hover:text-[#FF6719]' />
+                  </SmartLink>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
       </section>
     </div>
   )

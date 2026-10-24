@@ -25,6 +25,17 @@ it('shows the summary, links to the Substack post and shows the Beijing free dat
   expect(link).toHaveAttribute('href', url)
   expect(link).toHaveAttribute('rel', 'noopener noreferrer')
   expect(screen.getByText('本期将于 10 月 31 日免费开放')).toBeInTheDocument()
+  expect(screen.queryByText('往期免费阅读')).not.toBeInTheDocument()
+})
+
+it('links to free past issues', () => {
+  const freeIssues = [{ title: 'AI 日报 10-17', href: '/article/ai-daily-2026-10-17', day: '2026-10-17' }]
+  render(<SubstackPaywall post={{ paywall: { freeAt, url: '', isPost: false, freeIssues } }} />)
+  expect(screen.getByText('往期免费阅读')).toBeInTheDocument()
+  expect(screen.getByRole('link', { name: 'AI 日报 10-17' })).toHaveAttribute(
+    'href',
+    '/article/ai-daily-2026-10-17'
+  )
 })
 
 it('asks readers to subscribe when the post has no Substack link yet', () => {

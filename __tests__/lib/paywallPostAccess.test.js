@@ -70,7 +70,19 @@ beforeEach(() => {
         tags: ['AI', '日报'],
         date: { start_date: '2026-10-24' },
         summary: 'PUBLIC_SUMMARY',
-        substack
+        substack,
+        category: 'AI'
+      },
+      {
+        id: 'old',
+        title: 'AI 日报 10-17',
+        slug: 'ai-daily-2026-10-17',
+        href: '/ai-daily-2026-10-17',
+        type: 'Post',
+        status: 'Published',
+        tags: ['日报'],
+        category: 'AI',
+        date: { start_date: '2026-10-17' }
       },
       { id: otherId, title: '原创', slug: 'original', type: 'Post', status: 'Published', tags: ['LLM'] }
     ],
@@ -87,13 +99,18 @@ it.each([undefined, 'any password'])(
   async password => {
     jest.spyOn(Date, 'now').mockReturnValue(Date.parse('2026-10-25T00:00:00Z'))
     const props = await resolvePostProps({ prefix: 'ai-daily-2026-10-24', password })
-    expect(props.post.paywall).toEqual({ freeAt, url: substack, isPost: true })
+    expect(props.post.paywall).toEqual({
+      freeAt,
+      url: substack,
+      isPost: true,
+      freeIssues: [{ title: 'AI 日报 10-17', href: '/ai-daily-2026-10-17', day: '2026-10-17' }]
+    })
     expect(props.post.summary).toBe('PUBLIC_SUMMARY')
     expect(props.post.blockMap).toBeUndefined()
     // 连续的英文串按 1 个词计
     expect(props.post.wordCount).toBe(1)
     expect(props.post.readTime).toBe(1)
-    expect(props.next.title).toBe('原创')
+    expect(props.next.title).toBe('AI 日报 10-17')
     expect(JSON.stringify(props)).not.toContain(marker)
   }
 )

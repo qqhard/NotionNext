@@ -18,6 +18,9 @@ module.exports = {
   PAYWALL_SUBSTACK_PROPERTY:
     process.env.NEXT_PUBLIC_PAYWALL_SUBSTACK_PROPERTY || 'substack',
 
+  // 卡片下方展示的同系列已免费往期条数，0 表示不展示
+  PAYWALL_FREE_ISSUES: process.env.NEXT_PUBLIC_PAYWALL_FREE_ISSUES || 3,
+
   // 卡片文案
   PAYWALL_TITLE: '本期为订阅内容',
   PAYWALL_BENEFITS: [
