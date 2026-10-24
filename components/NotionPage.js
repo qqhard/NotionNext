@@ -9,6 +9,7 @@ import dynamic from 'next/dynamic'
 import { useEffect, useId, useRef } from 'react'
 import { NotionRenderer } from 'react-notion-x'
 import OriginalityProof from './OriginalityProof'
+import SubstackPaywall from './SubstackPaywall'
 
 /**
  * 整个站点的核心组件
@@ -16,7 +17,14 @@ import OriginalityProof from './OriginalityProof'
  * @param {*} param0
  * @returns
  */
-const NotionPage = ({ post, className }) => {
+const NotionPage = props =>
+  props.post?.paywall ? (
+    <SubstackPaywall post={props.post} />
+  ) : (
+    <NotionPageBody {...props} />
+  )
+
+const NotionPageBody = ({ post, className }) => {
   // 是否关闭数据库和画册的点击跳转
   const POST_DISABLE_GALLERY_CLICK = siteConfig('POST_DISABLE_GALLERY_CLICK')
   const POST_DISABLE_DATABASE_CLICK = siteConfig('POST_DISABLE_DATABASE_CLICK')

@@ -1,7 +1,6 @@
 import { AdSlot } from '@/components/GoogleAdsense'
 import replaceSearchResult from '@/components/Mark'
 import NotionPage from '@/components/NotionPage'
-import SubstackPaywall from '@/components/SubstackPaywall'
 import { siteConfig } from '@/lib/config'
 import { useGlobal } from '@/lib/global'
 import { isBrowser } from '@/lib/utils'
@@ -236,12 +235,7 @@ const LayoutSlug = props => {
 
           <div id='article-wrapper'>
             {/* Notion文章主体 */}
-            {!lock &&
-              (post?.paywall ? (
-                <SubstackPaywall post={post} />
-              ) : (
-                <NotionPage post={post} />
-              ))}
+            {!lock && <NotionPage post={post} />}
           </div>
 
           {/* 分享 */}
