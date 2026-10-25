@@ -1,5 +1,6 @@
 /** @jest-environment node */
-import { resolvePostProps } from '@/lib/db/SiteDataApi'
+import { cleanPostSummary, resolvePostProps } from '@/lib/db/SiteDataApi'
+import { isPaywalled } from '@/lib/utils/paywall'
 import { getOrSetDataWithCache } from '@/lib/cache/cache_manager'
 import { fetchNotionPageBlocks } from '@/lib/db/notion/getPostBlocks'
 
@@ -146,4 +147,10 @@ it('keeps need_pay posts locked with no free date', async () => {
   })
   expect(props.post.summary).toBe('ESSAY_SUMMARY')
   expect(JSON.stringify(props)).not.toContain(marker)
+})
+
+it('keeps the need_pay flag in post summaries used by RSS and list previews', () => {
+  const summary = cleanPostSummary({ id, type: 'Post', tags: ['LLM'], need_pay: 'Yes', blockMap: {} })
+  expect(summary.need_pay).toBe('Yes')
+  expect(isPaywalled(summary)).toBe(true)
 })
