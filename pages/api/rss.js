@@ -1,4 +1,5 @@
 import BLOG from '@/blog.config'
+import { siteConfig } from '@/lib/config'
 import { fetchGlobalAllData } from '@/lib/db/SiteDataApi'
 import { createFeed } from '@/lib/utils/rss'
 
@@ -69,6 +70,10 @@ async function generateRssContent() {
 export default async function handler(req, res) {
   if (req.method !== 'GET') {
     return res.status(405).json({ message: 'Method Not Allowed' })
+  }
+  // fork：RSS 关闭时不提供兜底 feed
+  if (!siteConfig('ENABLE_RSS', false)) {
+    return res.status(404).json({ message: 'Not Found' })
   }
 
   try {

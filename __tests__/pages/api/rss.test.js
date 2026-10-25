@@ -68,6 +68,20 @@ describe('/api/rss fallback', () => {
   beforeEach(() => {
     fetchGlobalAllDataMock.mockReset()
     createFeedMock.mockReset()
+    process.env.NEXT_PUBLIC_ENABLE_RSS = 'true'
+  })
+
+  afterEach(() => {
+    delete process.env.NEXT_PUBLIC_ENABLE_RSS
+  })
+
+  it('returns 404 without building a feed when RSS is disabled', async () => {
+    delete process.env.NEXT_PUBLIC_ENABLE_RSS
+    const handler = loadHandler()
+    const res = createResponse()
+    await handler({ method: 'GET', query: {} }, res)
+    expect(res.statusCode).toBe(404)
+    expect(fetchGlobalAllDataMock).not.toHaveBeenCalled()
   })
 
   it('renders the feed through the shared builder instead of a title-only list', async () => {

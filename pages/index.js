@@ -110,8 +110,11 @@ export async function getStaticProps(req) {
   if (isBuildLifecycle) {
     // 生成robotTxt
     generateRobotsTxt(props)
-    // 生成Feed订阅
-    if (shouldGenerateRssForLocale({ locale })) {
+    // 生成Feed订阅（fork：服从 ENABLE_RSS 开关，关闭时不生成）
+    if (
+      siteConfig('ENABLE_RSS', false, props.NOTION_CONFIG) &&
+      shouldGenerateRssForLocale({ locale })
+    ) {
       await generateRss(props)
     }
     // 生成
