@@ -26,6 +26,7 @@ const freeAt = Date.parse('2026-10-30T16:00:00Z')
 
 afterEach(() => {
   BLOG.PAYWALL_ENABLE = true
+  BLOG.PAYWALL_TAGS = '日报,周报'
 })
 
 it('locks tagged posts until 00:00 Beijing time on publish day + 7', () => {
@@ -37,6 +38,27 @@ it('locks tagged posts until 00:00 Beijing time on publish day + 7', () => {
   expect(getPaywall(daily, freeAt - 1)).not.toBeNull()
   expect(getPaywall(daily, freeAt)).toBeNull()
   expect(getFreeDay(freeAt)).toEqual({ month: 10, day: 31 })
+})
+
+it('locks each tag for its own number of days', () => {
+  const now = Date.parse('2026-10-25T00:00:00Z')
+  // 10-24 + 3 天 = 10 月 27 日北京时间 0 点
+  const dailyFreeAt = Date.parse('2026-10-26T16:00:00Z')
+  BLOG.PAYWALL_TAGS = '日报:3, 周报：7, 月报'
+  expect(getPaywall(daily, now).freeAt).toBe(dailyFreeAt)
+  expect(getPaywall({ ...daily, tags: ['周报'] }, now).freeAt).toBe(freeAt)
+  // 没写天数的标签用 PAYWALL_DAYS
+  expect(getPaywall({ ...daily, tags: ['月报'] }, now).freeAt).toBe(freeAt)
+  // 同时带两个标签时按更长的锁
+  expect(getPaywall({ ...daily, tags: ['日报', '周报'] }, now).freeAt).toBe(freeAt)
+  expect(getPaywall(daily, dailyFreeAt)).toBeNull()
+})
+
+it('locks dailies for 3 days and weeklies for 7 by default', () => {
+  const now = Date.parse('2026-10-25T00:00:00Z')
+  delete BLOG.PAYWALL_TAGS
+  expect(getPaywall(daily, now).freeAt).toBe(Date.parse('2026-10-26T16:00:00Z'))
+  expect(getPaywall({ ...daily, tags: ['周报'] }, now).freeAt).toBe(freeAt)
 })
 
 it('locks weekly posts and leaves other posts, pages and the switch-off case alone', () => {

@@ -1,14 +1,14 @@
 /**
  * 付费锁定（本 fork 新增）
- * 带指定标签的文章发布后 N 天内，博客只显示标题、开头一部分正文和 Substack 引流卡片，
+ * 带指定标签的文章发布后各自的天数内（日报 3 天、周报 7 天），博客只显示标题、开头一部分正文和 Substack 引流卡片，
  * 第 N+1 天北京时间 0 点起自动免费。手动勾选 need_pay 的文章一直锁定。其余正文不会出现在页面、接口中，RSS 和搜索只有摘要。
  */
 module.exports = {
   // 总开关，Substack 同步上线后再打开
   PAYWALL_ENABLE: process.env.NEXT_PUBLIC_PAYWALL_ENABLE || false,
-  // 需要锁定的标签，逗号分隔
-  PAYWALL_TAGS: process.env.NEXT_PUBLIC_PAYWALL_TAGS || '日报,周报',
-  // 锁定天数，从 Notion date 当天（北京时间）算起
+  // 需要锁定的标签和各自的锁定天数，「标签:天数」逗号分隔，天数从 Notion date 当天（北京时间）算起
+  PAYWALL_TAGS: process.env.NEXT_PUBLIC_PAYWALL_TAGS || '日报:3,周报:7',
+  // 标签没写天数时的锁定天数
   PAYWALL_DAYS: process.env.NEXT_PUBLIC_PAYWALL_DAYS || 7,
   // Substack 刊物地址；文章还没有对应的 Substack 链接时，按钮跳到它的订阅页
   PAYWALL_SUBSTACK_URL:
