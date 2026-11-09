@@ -48,13 +48,15 @@ jest.mock('notion-utils', () => ({
 const id = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa'
 const otherId = 'cccccccc-cccc-cccc-cccc-cccccccccccc'
 const textId = 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb'
+const introId = 'dddddddd-dddd-dddd-dddd-dddddddddddd'
 const marker = 'PAID_BODY_REGRESSION_MARKER'
 const substack = 'https://recsysfrontier.substack.com/p/ai-daily-2026-10-24'
 const freeAt = Date.parse('2026-10-30T16:00:00Z')
-const body = () => ({
+const body = (pageId = id) => ({
   block: {
-    [id]: { value: { id, type: 'page', content: [textId], properties: { title: [['AI 日报']] } } },
-    [textId]: { value: { id: textId, type: 'text', parent_id: id, properties: { title: [[marker]] } } }
+    [pageId]: { value: { id: pageId, type: 'page', content: [introId, textId], properties: { title: [['AI 日报']] } } },
+    [introId]: { value: { id: introId, type: 'text', parent_id: pageId, properties: { title: [['免费开头']] } } },
+    [textId]: { value: { id: textId, type: 'text', parent_id: pageId, properties: { title: [[marker]] } } }
   }
 })
 
@@ -90,13 +92,13 @@ beforeEach(() => {
     latestPosts: [],
     tagOptions: []
   })
-  fetchNotionPageBlocks.mockImplementation(() => Promise.resolve(body()))
+  fetchNotionPageBlocks.mockImplementation(pageId => Promise.resolve(body(pageId)))
 })
 
 afterEach(() => jest.restoreAllMocks())
 
 it.each([undefined, 'any password'])(
-  'serves only the summary and Substack link during the paywall (password: %s)',
+  'serves the free preview and Substack link but not the paid body during the paywall (password: %s)',
   async password => {
     jest.spyOn(Date, 'now').mockReturnValue(Date.parse('2026-10-25T00:00:00Z'))
     const props = await resolvePostProps({ prefix: 'ai-daily-2026-10-24', password })
@@ -107,9 +109,11 @@ it.each([undefined, 'any password'])(
       freeIssues: [{ title: 'AI 日报 10-17', href: '/ai-daily-2026-10-17', day: '2026-10-17' }]
     })
     expect(props.post.summary).toBe('PUBLIC_SUMMARY')
-    expect(props.post.blockMap).toBeUndefined()
-    // 连续的英文串按 1 个词计
-    expect(props.post.wordCount).toBe(1)
+    // 两段里放出第一段
+    expect(props.post.blockMap.block[id].value.content).toEqual([introId])
+    expect(JSON.stringify(props.post.blockMap)).toContain('免费开头')
+    // 字数按全文统计：4 个汉字 + 1 个英文串
+    expect(props.post.wordCount).toBe(5)
     expect(props.post.readTime).toBe(1)
     expect(props.next.title).toBe('AI 日报 10-17')
     expect(JSON.stringify(props)).not.toContain(marker)
@@ -122,6 +126,7 @@ it('still serves the locked page when the body cannot be counted', async () => {
   fetchNotionPageBlocks.mockRejectedValue(new Error('timeout'))
   const props = await resolvePostProps({ prefix: 'ai-daily-2026-10-24' })
   expect(props.post.paywall.url).toBe(substack)
+  expect(props.post.blockMap).toBeUndefined()
   expect(props.post.wordCount).toBeUndefined()
 })
 
@@ -146,6 +151,7 @@ it('keeps need_pay posts locked with no free date', async () => {
     freeIssues: []
   })
   expect(props.post.summary).toBe('ESSAY_SUMMARY')
+  expect(JSON.stringify(props.post.blockMap)).toContain('免费开头')
   expect(JSON.stringify(props)).not.toContain(marker)
 })
 

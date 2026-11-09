@@ -28,6 +28,16 @@ it('shows the summary, links to the Substack post and shows the Beijing free dat
   expect(screen.queryByText('往期免费阅读')).not.toBeInTheDocument()
 })
 
+it('drops the summary when part of the body is shown above the card', () => {
+  render(
+    <SubstackPaywall
+      post={{ summary: '本期摘要', blockMap: { block: {} }, paywall: { freeAt, url: '', isPost: false } }}
+    />
+  )
+  expect(screen.queryByText(/本期摘要/)).not.toBeInTheDocument()
+  expect(screen.getByText('本期为订阅内容')).toBeInTheDocument()
+})
+
 it('links to free past issues', () => {
   const freeIssues = [{ title: 'AI 日报 10-17', href: '/article/ai-daily-2026-10-17', day: '2026-10-17' }]
   render(<SubstackPaywall post={{ paywall: { freeAt, url: '', isPost: false, freeIssues } }} />)

@@ -19,7 +19,10 @@ import SubstackPaywall from './SubstackPaywall'
  */
 const NotionPage = props =>
   props.post?.paywall ? (
-    <SubstackPaywall post={props.post} />
+    <>
+      {props.post.blockMap && <NotionPageBody {...props} />}
+      <SubstackPaywall post={props.post} />
+    </>
   ) : (
     <NotionPageBody {...props} />
   )

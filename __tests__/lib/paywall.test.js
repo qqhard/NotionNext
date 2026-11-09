@@ -1,6 +1,6 @@
 /** @jest-environment node */
 import BLOG from '@/blog.config'
-import { getFreeDay, getFreeIssues, getPaywall } from '@/lib/utils/paywall'
+import { getFreeDay, getFreeIssues, getPaywall, getPaywallPreview } from '@/lib/utils/paywall'
 import { getPublicPostBlockMap } from '@/lib/utils/publicPost'
 
 jest.mock('@/blog.config', () => ({
@@ -120,4 +120,71 @@ it('locks posts with need_pay checked until it is unchecked', () => {
   expect(getFreeIssues({ ...daily, need_pay: 'Yes' }, [daily], now)).toEqual([])
   BLOG.PAYWALL_ENABLE = false
   expect(getPaywall({ ...essay, need_pay: 'Yes' }, now)).toBeNull()
+})
+
+describe('getPaywallPreview', () => {
+  // 根页面 + 若干顶层段落；ids 为空串时表示分隔符段落
+  const page = (texts, extra = {}) => {
+    const ids = texts.map((_, i) => `b${i}`)
+    const block = {
+      daily: { value: { id: 'daily', type: 'page', content: ids } },
+      ...extra
+    }
+    texts.forEach((text, i) => {
+      block[ids[i]] = {
+        value: { id: ids[i], type: 'text', parent_id: 'daily', properties: { title: [[text]] } }
+      }
+    })
+    return { block, signed_urls: Object.fromEntries(ids.map(id => [id, `https://s/${id}`])) }
+  }
+  const shown = preview => preview.block.daily.value.content
+
+  afterEach(() => {
+    delete BLOG.PAYWALL_MARKER
+    delete BLOG.PAYWALL_PREVIEW_RATIO
+  })
+
+  it('cuts at the marker paragraph and hides the marker and everything after it', () => {
+    const map = page(['一', '二', ' [paywall] ', '三'])
+    const preview = getPaywallPreview(daily, map)
+    expect(shown(preview)).toEqual(['b0', 'b1'])
+    expect(Object.keys(preview.block).sort()).toEqual(['b0', 'b1', 'daily'])
+    expect(Object.keys(preview.signed_urls)).toEqual(['b0', 'b1'])
+    // 不改动传入的 blockMap
+    expect(map.block.daily.value.content).toHaveLength(4)
+  })
+
+  it('shows the first 30% of top-level blocks, rounded up, when there is no marker', () => {
+    expect(shown(getPaywallPreview(daily, page(Array(10).fill('段'))))).toEqual(['b0', 'b1', 'b2'])
+    expect(shown(getPaywallPreview(daily, page(Array(4).fill('段'))))).toEqual(['b0', 'b1'])
+    BLOG.PAYWALL_PREVIEW_RATIO = 0.5
+    BLOG.PAYWALL_MARKER = '<more>'
+    expect(shown(getPaywallPreview(daily, page(['一', '<more>', '三', '四'])))).toEqual(['b0'])
+    expect(shown(getPaywallPreview(daily, page(Array(10).fill('段'))))).toHaveLength(5)
+  })
+
+  it('shows at least one block but never the whole article', () => {
+    expect(shown(getPaywallPreview(daily, page(['一', '二'])))).toEqual(['b0'])
+    expect(shown(getPaywallPreview(daily, page(['唯一一段'])))).toEqual([])
+    expect(shown(getPaywallPreview(daily, page(['[paywall]', '二'])))).toEqual([])
+  })
+
+  it('does not end a ratio cut on a dangling heading', () => {
+    const map = page(Array(10).fill('段'))
+    map.block.b1.value.type = 'header'
+    map.block.b2.value.type = 'sub_header'
+    expect(shown(getPaywallPreview(daily, map))).toEqual(['b0'])
+  })
+
+  it('keeps nested children of shown blocks but not the contents of sub-pages', () => {
+    const map = page(['一', '二', '三', '四'], {
+      child: { value: { id: 'child', type: 'text', parent_id: 'b0', properties: { title: [['子']] } } },
+      sub: { value: { id: 'sub', type: 'page', parent_id: 'b1', content: ['subText'] } },
+      subText: { value: { id: 'subText', type: 'text', parent_id: 'sub' } }
+    })
+    map.block.b0.value.content = ['child']
+    map.block.b1.value.content = ['sub']
+    const preview = getPaywallPreview(daily, map)
+    expect(Object.keys(preview.block).sort()).toEqual(['b0', 'b1', 'child', 'daily', 'sub'])
+  })
 })

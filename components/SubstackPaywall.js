@@ -7,7 +7,8 @@ const withEllipsis = text =>
   /[。！？…；.!?;」”）)]$/.test(text.trim()) ? text : `${text.trim()}…`
 
 /**
- * 付费锁定期内代替正文：摘要 + 订阅卡片（权益、跳转 Substack、免费开放日期、已免费往期）
+ * 付费锁定期内放在放出的正文下方：订阅卡片（权益、跳转 Substack、免费开放日期、已免费往期）
+ * 没有放出正文时（拉取失败或全文太短）先显示摘要
  */
 export default function SubstackPaywall({ post }) {
   const paywall = post?.paywall
@@ -20,7 +21,7 @@ export default function SubstackPaywall({ post }) {
 
   return (
     <div id='substack-paywall' className='my-6'>
-      {post.summary && (
+      {!post.blockMap && post.summary && (
         <p className='text-base leading-8 text-gray-700 dark:text-gray-300'>
           {withEllipsis(post.summary)}
         </p>
