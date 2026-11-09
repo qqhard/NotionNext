@@ -24,7 +24,7 @@ module.exports = {
   // 锁定文章放出的正文：在 Notion 里单独写一行分隔符，它之前的内容公开、之后的锁定
   PAYWALL_MARKER: process.env.NEXT_PUBLIC_PAYWALL_MARKER || '[paywall]',
   // 没有分隔符时放出的顶层段落比例（向上取整，至少 1 段，不放出全文）
-  PAYWALL_PREVIEW_RATIO: process.env.NEXT_PUBLIC_PAYWALL_PREVIEW_RATIO || 0.3,
+  PAYWALL_PREVIEW_RATIO: process.env.NEXT_PUBLIC_PAYWALL_PREVIEW_RATIO || 0.2,
   // 卡片下方展示的同系列已免费往期条数，0 表示不展示
   PAYWALL_FREE_ISSUES: process.env.NEXT_PUBLIC_PAYWALL_FREE_ISSUES || 3,
 

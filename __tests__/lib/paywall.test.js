@@ -154,9 +154,10 @@ describe('getPaywallPreview', () => {
     expect(map.block.daily.value.content).toHaveLength(4)
   })
 
-  it('shows the first 30% of top-level blocks, rounded up, when there is no marker', () => {
-    expect(shown(getPaywallPreview(daily, page(Array(10).fill('段'))))).toEqual(['b0', 'b1', 'b2'])
-    expect(shown(getPaywallPreview(daily, page(Array(4).fill('段'))))).toEqual(['b0', 'b1'])
+  it('shows the first 20% of top-level blocks, rounded up, when there is no marker', () => {
+    expect(shown(getPaywallPreview(daily, page(Array(10).fill('段'))))).toEqual(['b0', 'b1'])
+    expect(shown(getPaywallPreview(daily, page(Array(6).fill('段'))))).toEqual(['b0', 'b1'])
+    expect(shown(getPaywallPreview(daily, page(Array(4).fill('段'))))).toEqual(['b0'])
     BLOG.PAYWALL_PREVIEW_RATIO = 0.5
     BLOG.PAYWALL_MARKER = '<more>'
     expect(shown(getPaywallPreview(daily, page(['一', '<more>', '三', '四'])))).toEqual(['b0'])
@@ -177,7 +178,7 @@ describe('getPaywallPreview', () => {
   })
 
   it('keeps nested children of shown blocks but not the contents of sub-pages', () => {
-    const map = page(['一', '二', '三', '四'], {
+    const map = page(Array(10).fill('段'), {
       child: { value: { id: 'child', type: 'text', parent_id: 'b0', properties: { title: [['子']] } } },
       sub: { value: { id: 'sub', type: 'page', parent_id: 'b1', content: ['subText'] } },
       subText: { value: { id: 'subText', type: 'text', parent_id: 'sub' } }
