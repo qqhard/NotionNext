@@ -72,6 +72,8 @@ export default function SubstackPaywall({ post }) {
             </p>
             <a
               href={xiaobotUrl}
+              // 描边色用内联样式：border-[#…] 任意值类在本主题的 Tailwind 构建里不生效，会退回灰色
+              style={{ borderColor: '#B14B43' }}
               target='_blank'
               rel='noopener noreferrer'
               className='inline-flex items-center gap-2 rounded-full border border-[#B14B43] bg-white px-8 py-3 text-base font-semibold text-[#B14B43] transition hover:-translate-y-0.5 hover:bg-red-50 dark:bg-transparent dark:hover:bg-gray-700'>
