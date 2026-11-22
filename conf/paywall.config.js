@@ -31,16 +31,18 @@ module.exports = {
   // 卡片文案
   PAYWALL_TITLE: '本期为订阅内容',
   PAYWALL_MANUAL_TITLE: '本文为订阅内容',
+  // 与 Substack 付费权益（publication.paid_subscription_benefits）对齐；作者 2026-11-22 定：不提「九老师」
   PAYWALL_BENEFITS: [
-    '每天的 AI / 推荐系统前沿日报，第一时间读到',
-    '每周周报，一周重点一次看完',
-    '订阅期内所有日报周报全文'
+    '长文、日报、周报发布当天读全文（免费读者要等 3–8 天）',
+    '全部历史文章随时可读，包括付费专区 Premium',
+    '加入付费读者群（Substack Chat），一起讨论技术问题',
+    '私信咨询职业发展问题'
   ],
   PAYWALL_BUTTON_TEXT: '去 Substack 阅读全文',
   PAYWALL_SUBSCRIBE_TEXT: '去 Substack 订阅',
   // 国内读者翻不了墙：Substack 按钮下方再放小报童专栏（内容与 Substack 同步），留空则不显示
   PAYWALL_XIAOBOT_URL:
     process.env.NEXT_PUBLIC_PAYWALL_XIAOBOT_URL || 'https://xiaobot.net/p/aisignal',
-  PAYWALL_XIAOBOT_TEXT: '去小报童订阅',
+  PAYWALL_XIAOBOT_TEXT: '去小报童阅读全文',
   PAYWALL_XIAOBOT_HINT: '国内读者打不开 Substack？'
 }

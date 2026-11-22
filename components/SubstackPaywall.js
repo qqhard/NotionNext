@@ -74,8 +74,8 @@ export default function SubstackPaywall({ post }) {
               href={xiaobotUrl}
               target='_blank'
               rel='noopener noreferrer'
-              className='inline-flex items-center gap-2 rounded-full border border-[#FF6719] bg-white px-8 py-3 text-base font-semibold text-[#FF6719] transition hover:-translate-y-0.5 hover:bg-orange-50 dark:bg-transparent dark:hover:bg-gray-700'>
-              {siteConfig('PAYWALL_XIAOBOT_TEXT', '去小报童订阅')}
+              className='inline-flex items-center gap-2 rounded-full border border-[#B14B43] bg-white px-8 py-3 text-base font-semibold text-[#B14B43] transition hover:-translate-y-0.5 hover:bg-red-50 dark:bg-transparent dark:hover:bg-gray-700'>
+              {siteConfig('PAYWALL_XIAOBOT_TEXT', '去小报童阅读全文')}
               <i className='fas fa-arrow-right text-sm' />
             </a>
           </div>
