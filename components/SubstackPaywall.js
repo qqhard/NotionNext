@@ -18,6 +18,7 @@ export default function SubstackPaywall({ post }) {
   const buttonText = paywall.isPost
     ? siteConfig('PAYWALL_BUTTON_TEXT', '去 Substack 阅读全文')
     : siteConfig('PAYWALL_SUBSCRIBE_TEXT', '去 Substack 订阅')
+  const xiaobotUrl = siteConfig('PAYWALL_XIAOBOT_URL', '')
 
   return (
     <div id='substack-paywall' className='my-6'>
@@ -37,7 +38,7 @@ export default function SubstackPaywall({ post }) {
             : siteConfig('PAYWALL_MANUAL_TITLE', '本文为订阅内容')}
         </h2>
         <p className='mb-6 text-sm text-gray-500 dark:text-gray-400'>
-          订阅 RecsysFrontier，在 Substack 阅读{freeDay ? '本期' : '本文'}全文
+          订阅 RecsysFrontier 阅读{freeDay ? '本期' : '本文'}全文
         </p>
 
         {Array.isArray(benefits) && benefits.length > 0 && (
@@ -59,6 +60,22 @@ export default function SubstackPaywall({ post }) {
               rel='noopener noreferrer'
               className='inline-flex items-center gap-2 rounded-full bg-[#FF6719] px-8 py-3 text-base font-semibold text-white shadow-md shadow-orange-200 transition hover:-translate-y-0.5 hover:bg-[#E85A0C] hover:shadow-lg dark:shadow-none'>
               {buttonText}
+              <i className='fas fa-arrow-right text-sm' />
+            </a>
+          </div>
+        )}
+
+        {xiaobotUrl && (
+          <div className='mt-4'>
+            <p className='mb-2 text-xs text-gray-400'>
+              {siteConfig('PAYWALL_XIAOBOT_HINT', '国内读者打不开 Substack？')}
+            </p>
+            <a
+              href={xiaobotUrl}
+              target='_blank'
+              rel='noopener noreferrer'
+              className='inline-flex items-center gap-2 rounded-full border border-[#FF6719] bg-white px-8 py-3 text-base font-semibold text-[#FF6719] transition hover:-translate-y-0.5 hover:bg-orange-50 dark:bg-transparent dark:hover:bg-gray-700'>
+              {siteConfig('PAYWALL_XIAOBOT_TEXT', '去小报童订阅')}
               <i className='fas fa-arrow-right text-sm' />
             </a>
           </div>

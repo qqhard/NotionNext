@@ -37,5 +37,10 @@ module.exports = {
     '订阅期内所有日报周报全文'
   ],
   PAYWALL_BUTTON_TEXT: '去 Substack 阅读全文',
-  PAYWALL_SUBSCRIBE_TEXT: '去 Substack 订阅'
+  PAYWALL_SUBSCRIBE_TEXT: '去 Substack 订阅',
+  // 国内读者翻不了墙：Substack 按钮下方再放小报童专栏（内容与 Substack 同步），留空则不显示
+  PAYWALL_XIAOBOT_URL:
+    process.env.NEXT_PUBLIC_PAYWALL_XIAOBOT_URL || 'https://xiaobot.net/p/aisignal',
+  PAYWALL_XIAOBOT_TEXT: '去小报童订阅',
+  PAYWALL_XIAOBOT_HINT: '国内读者打不开 Substack？'
 }
