@@ -1,13 +1,16 @@
 /**
  * 付费锁定（本 fork 新增）
- * 带指定标签的文章发布后各自的天数内（日报 3 天、周报 7 天，英文版标签 Daily / Weekly 同样），博客只显示标题、开头一部分正文和 Substack 引流卡片，
+ * 带指定标签的文章发布后各自的天数内（日报 2 天、周报 3 天，英文版标签 Daily / Weekly 同样，与 Substack 解锁一致），博客只显示标题、开头一部分正文和 Substack 引流卡片，
  * 第 N+1 天北京时间 0 点起自动免费。手动勾选 need_pay 的文章一直锁定。其余正文不会出现在页面、接口中，RSS 和搜索只有摘要。
  */
 module.exports = {
   // 总开关，Substack 同步上线后再打开
   PAYWALL_ENABLE: process.env.NEXT_PUBLIC_PAYWALL_ENABLE || false,
   // 需要锁定的标签和各自的锁定天数，「标签:天数」逗号分隔，天数从 Notion date 当天（北京时间）算起
-  PAYWALL_TAGS: process.env.NEXT_PUBLIC_PAYWALL_TAGS || '日报:3,周报:7,Daily:3,Weekly:7',
+  PAYWALL_TAGS: process.env.NEXT_PUBLIC_PAYWALL_TAGS || '日报:2,周报:3,Daily:2,Weekly:3',
+  // 改天数之前发布的文章沿用旧天数（Substack 上它们的解锁定时也没改）。2026-11-28 之后全部到期，可以删掉这两项
+  PAYWALL_LEGACY_BEFORE: '2026-11-25',
+  PAYWALL_LEGACY_TAGS: '日报:3,周报:7,Daily:3,Weekly:7',
   // 标签没写天数时的锁定天数
   PAYWALL_DAYS: process.env.NEXT_PUBLIC_PAYWALL_DAYS || 7,
   // Substack 刊物地址；文章还没有对应的 Substack 链接时，按钮跳到它的订阅页
@@ -33,7 +36,7 @@ module.exports = {
   PAYWALL_MANUAL_TITLE: '本文为订阅内容',
   // 与 Substack 付费权益（publication.paid_subscription_benefits）对齐；作者 2026-11-22 定：不提「九老师」
   PAYWALL_BENEFITS: [
-    '长文、日报、周报发布当天读全文（免费读者要等 3–8 天）',
+    '长文、日报、周报发布当天读全文（免费读者要等 2–8 天）',
     '全部历史文章随时可读，包括付费专区 Premium',
     '加入付费读者群（Substack Chat），一起讨论技术问题',
     '私信咨询职业发展问题'
@@ -50,7 +53,7 @@ module.exports = {
   PAYWALL_TITLE_EN: 'This issue is for paid subscribers',
   PAYWALL_MANUAL_TITLE_EN: 'This article is for paid subscribers',
   PAYWALL_BENEFITS_EN: [
-    'Read essays, dailies and weeklies the day they come out (free readers wait 3–8 days)',
+    'Read essays, dailies and weeklies the day they come out (free readers wait 2–8 days)',
     'Full archive anytime, including the paid-only Premium section',
     'Join the paid-subscriber chat on Substack to discuss technical questions',
     'Ask career questions by direct message'

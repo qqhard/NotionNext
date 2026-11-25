@@ -54,11 +54,23 @@ it('locks each tag for its own number of days', () => {
   expect(getPaywall(daily, dailyFreeAt)).toBeNull()
 })
 
-it('locks dailies for 3 days and weeklies for 7 by default', () => {
+it('locks dailies for 2 days and weeklies for 3 by default', () => {
   const now = Date.parse('2026-10-25T00:00:00Z')
   delete BLOG.PAYWALL_TAGS
+  expect(getPaywall(daily, now).freeAt).toBe(Date.parse('2026-10-25T16:00:00Z'))
+  expect(getPaywall({ ...daily, tags: ['周报'] }, now).freeAt).toBe(Date.parse('2026-10-26T16:00:00Z'))
+})
+
+it('keeps the old lock days for posts published before the switch', () => {
+  const now = Date.parse('2026-10-25T00:00:00Z')
+  BLOG.PAYWALL_TAGS = '日报:2,周报:3'
+  BLOG.PAYWALL_LEGACY_TAGS = '日报:3,周报:7'
+  BLOG.PAYWALL_LEGACY_BEFORE = '2026-10-25'
   expect(getPaywall(daily, now).freeAt).toBe(Date.parse('2026-10-26T16:00:00Z'))
-  expect(getPaywall({ ...daily, tags: ['周报'] }, now).freeAt).toBe(freeAt)
+  BLOG.PAYWALL_LEGACY_BEFORE = '2026-10-24'
+  expect(getPaywall(daily, now).freeAt).toBe(Date.parse('2026-10-25T16:00:00Z'))
+  delete BLOG.PAYWALL_LEGACY_BEFORE
+  delete BLOG.PAYWALL_LEGACY_TAGS
 })
 
 it('locks weekly posts and leaves other posts, pages and the switch-off case alone', () => {
