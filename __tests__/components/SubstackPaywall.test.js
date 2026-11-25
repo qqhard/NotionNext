@@ -8,7 +8,8 @@ jest.mock('@/lib/config', () => ({
   siteConfig: (key, defaultVal) =>
     ({
       PAYWALL_BENEFITS: ['每天的日报'],
-      PAYWALL_TITLE: '本期为订阅内容'
+      PAYWALL_TITLE: '本期为订阅内容',
+      PAYWALL_XIAOBOT_URL: 'https://xiaobot.net/p/aisignal'
     })[key] ?? defaultVal
 }))
 
@@ -80,4 +81,14 @@ it('uses English copy and hides the Xiaobot entry on the English site', () => {
   expect(screen.getByRole('link', { name: 'Subscribe on Substack' })).toBeInTheDocument()
   expect(container.textContent).not.toMatch(/[\u4e00-\u9fff]/)
   useRouter.mockReturnValue({ locale: 'zh-CN' })
+})
+
+it('links the Xiaobot button to the post, or to the column when there is no post link', () => {
+  const xiaobotUrl = 'https://xiaobot.net/post/abc'
+  const paywall = { freeAt, url: 'https://x.test', isPost: true }
+  const { unmount } = render(<SubstackPaywall post={{ paywall: { ...paywall, xiaobotUrl } }} />)
+  expect(screen.getByRole('link', { name: '去小报童阅读全文' })).toHaveAttribute('href', xiaobotUrl)
+  unmount()
+  render(<SubstackPaywall post={{ paywall: { ...paywall, xiaobotUrl: '' } }} />)
+  expect(screen.getByRole('link', { name: '去小报童阅读全文' })).toHaveAttribute('href', 'https://xiaobot.net/p/aisignal')
 })

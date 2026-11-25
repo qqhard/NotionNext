@@ -46,6 +46,9 @@ module.exports = {
   // 国内读者翻不了墙：Substack 按钮下方再放小报童专栏（内容与 Substack 同步），留空则不显示
   PAYWALL_XIAOBOT_URL:
     process.env.NEXT_PUBLIC_PAYWALL_XIAOBOT_URL || 'https://xiaobot.net/p/aisignal',
+  // Notion 数据库里记录小报童文章链接的列名（URL 类型）；有链接时按钮直接跳到那一篇，没有才跳专栏
+  PAYWALL_XIAOBOT_PROPERTY:
+    process.env.NEXT_PUBLIC_PAYWALL_XIAOBOT_PROPERTY || 'xiaobot',
   PAYWALL_XIAOBOT_TEXT: '去小报童阅读全文',
   PAYWALL_XIAOBOT_HINT: '国内读者打不开 Substack？',
 

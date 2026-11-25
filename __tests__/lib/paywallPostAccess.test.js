@@ -105,7 +105,7 @@ it.each([undefined, 'any password'])(
     expect(props.post.paywall).toEqual({
       freeAt,
       url: substack,
-      isPost: true,
+      isPost: true, xiaobotUrl: '',
       freeIssues: [{ title: 'AI 日报 10-17', href: '/ai-daily-2026-10-17', day: '2026-10-17' }]
     })
     expect(props.post.summary).toBe('PUBLIC_SUMMARY')
@@ -147,7 +147,7 @@ it('keeps need_pay posts locked with no free date', async () => {
   expect(props.post.paywall).toEqual({
     freeAt: null,
     url: 'https://recsysfrontier.substack.com/subscribe',
-    isPost: false,
+    isPost: false, xiaobotUrl: '',
     freeIssues: []
   })
   expect(props.post.summary).toBe('ESSAY_SUMMARY')

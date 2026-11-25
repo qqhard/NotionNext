@@ -33,7 +33,7 @@ it('locks tagged posts until 00:00 Beijing time on publish day + 7', () => {
   expect(getPaywall(daily, Date.parse('2026-10-24T05:00:00Z'))).toEqual({
     freeAt,
     url: daily.substack,
-    isPost: true
+    isPost: true, xiaobotUrl: ''
   })
   expect(getPaywall(daily, freeAt - 1)).not.toBeNull()
   expect(getPaywall(daily, freeAt)).toBeNull()
@@ -92,7 +92,7 @@ it('falls back to the publish timestamp in Beijing time when Notion has no date'
 
 it('links to the subscribe page until a valid https Substack link is recorded', () => {
   const now = Date.parse('2026-10-25T00:00:00Z')
-  const subscribe = { url: 'https://recsysfrontier.substack.com/subscribe', isPost: false }
+  const subscribe = { url: 'https://recsysfrontier.substack.com/subscribe', isPost: false, xiaobotUrl: '' }
   expect(getPaywall({ ...daily, substack: '' }, now)).toMatchObject(subscribe)
   expect(getPaywall({ ...daily, substack: 'javascript:alert(1)' }, now)).toMatchObject(subscribe)
   expect(getPaywall({ ...daily, substack: 'http://insecure.example' }, now)).toMatchObject(subscribe)
@@ -144,7 +144,7 @@ it('locks posts with need_pay checked until it is unchecked', () => {
   expect(getPaywall({ ...essay, need_pay: 'Yes' }, now)).toEqual({
     freeAt: null,
     url: daily.substack,
-    isPost: true
+    isPost: true, xiaobotUrl: ''
   })
   expect(getPaywall({ ...essay, type: 'Page', need_pay: 'Yes' }, now)).not.toBeNull()
   expect(getPaywall({ ...essay, need_pay: 'No' }, now)).toBeNull()
@@ -222,4 +222,11 @@ describe('getPaywallPreview', () => {
     const preview = getPaywallPreview(daily, map)
     expect(Object.keys(preview.block).sort()).toEqual(['b0', 'b1', 'child', 'daily', 'sub'])
   })
+})
+
+it('passes the Xiaobot post link through and ignores anything that is not https', () => {
+  const now = Date.parse('2026-10-24T05:00:00Z')
+  const xiaobot = 'https://xiaobot.net/post/abc'
+  expect(getPaywall({ ...daily, xiaobot }, now).xiaobotUrl).toBe(xiaobot)
+  expect(getPaywall({ ...daily, xiaobot: 'javascript:alert(1)' }, now).xiaobotUrl).toBe('')
 })

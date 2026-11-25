@@ -25,7 +25,7 @@ export default function SubstackPaywall({ post }) {
   const buttonText = paywall.isPost
     ? text('PAYWALL_BUTTON_TEXT', '去 Substack 阅读全文', 'Read the full issue on Substack')
     : text('PAYWALL_SUBSCRIBE_TEXT', '去 Substack 订阅', 'Subscribe on Substack')
-  const xiaobotUrl = en ? '' : siteConfig('PAYWALL_XIAOBOT_URL', '')
+  const xiaobotUrl = en ? '' : paywall.xiaobotUrl || siteConfig('PAYWALL_XIAOBOT_URL', '')
 
   return (
     <div id='substack-paywall' className='my-6'>
