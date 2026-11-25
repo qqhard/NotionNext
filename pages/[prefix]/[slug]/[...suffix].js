@@ -1,6 +1,5 @@
-import BLOG from '@/blog.config'
-import { siteConfig } from '@/lib/config'
 import { resolvePostProps } from '@/lib/db/SiteDataApi'
+import { getPostRevalidate } from '@/lib/utils/revalidate'
 import { getStaticPathsBase } from '@/lib/build/staticPaths'
 import { isExport } from '@/lib/utils/buildMode'
 import { checkSlugHasMorThanTwoSlash } from '@/lib/utils/post'
@@ -56,11 +55,7 @@ export async function getStaticProps({
     props,
     revalidate: isStaticExport
       ? undefined
-      : siteConfig(
-        'NEXT_REVALIDATE_SECOND',
-        BLOG.NEXT_REVALIDATE_SECOND,
-        props.NOTION_CONFIG
-      ),
+      : getPostRevalidate(props),
     notFound: !props.post
   }
 }

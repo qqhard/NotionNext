@@ -3,6 +3,7 @@ import useNotification from '@/components/Notification'
 import TechGrow from '@/components/TechGrow'
 import { siteConfig } from '@/lib/config'
 import { resolvePostProps } from '@/lib/db/SiteDataApi'
+import { getPostRevalidate } from '@/lib/utils/revalidate'
 import { useGlobal } from '@/lib/global'
 import useProtectedPost from '@/hooks/useProtectedPost'
 import ArticleLock from '@/components/ArticleLock'
@@ -77,11 +78,7 @@ export async function getStaticProps({ params: { prefix }, locale, revalidateRea
     props,
     revalidate: isStaticExport
       ? undefined
-      : siteConfig(
-        'NEXT_REVALIDATE_SECOND',
-        BLOG.NEXT_REVALIDATE_SECOND,
-        props.NOTION_CONFIG
-      ),
+      : getPostRevalidate(props),
     notFound: !props.post
   }
 }
