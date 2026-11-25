@@ -1,6 +1,9 @@
 import SmartLink from '@/components/SmartLink'
 import { siteConfig } from '@/lib/config'
 import { getFreeDay } from '@/lib/utils/paywall'
+import { useRouter } from 'next/router'
+
+const MONTHS_EN = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 
 // 日报摘要在写入 Notion 时被截断，结尾不是标点时补省略号
 const withEllipsis = text =>
@@ -9,16 +12,20 @@ const withEllipsis = text =>
 /**
  * 付费锁定期内放在放出的正文下方：订阅卡片（权益、跳转 Substack、免费开放日期、已免费往期）
  * 没有放出正文时（拉取失败或全文太短）先显示摘要
+ * 文案跟随站点语言：英文站用 PAYWALL_*_EN，且不放小报童入口
  */
 export default function SubstackPaywall({ post }) {
+  const en = /^en/i.test(useRouter()?.locale || '')
   const paywall = post?.paywall
   if (!paywall) return null
-  const benefits = siteConfig('PAYWALL_BENEFITS', [])
+  const text = (key, zh, enText) =>
+    en ? siteConfig(`${key}_EN`, enText) : siteConfig(key, zh)
+  const benefits = text('PAYWALL_BENEFITS', [], [])
   const freeDay = paywall.freeAt ? getFreeDay(paywall.freeAt) : null
   const buttonText = paywall.isPost
-    ? siteConfig('PAYWALL_BUTTON_TEXT', '去 Substack 阅读全文')
-    : siteConfig('PAYWALL_SUBSCRIBE_TEXT', '去 Substack 订阅')
-  const xiaobotUrl = siteConfig('PAYWALL_XIAOBOT_URL', '')
+    ? text('PAYWALL_BUTTON_TEXT', '去 Substack 阅读全文', 'Read the full issue on Substack')
+    : text('PAYWALL_SUBSCRIBE_TEXT', '去 Substack 订阅', 'Subscribe on Substack')
+  const xiaobotUrl = en ? '' : siteConfig('PAYWALL_XIAOBOT_URL', '')
 
   return (
     <div id='substack-paywall' className='my-6'>
@@ -34,11 +41,13 @@ export default function SubstackPaywall({ post }) {
         </div>
         <h2 className='mb-2 text-xl font-bold text-gray-900 dark:text-gray-100'>
           {freeDay
-            ? siteConfig('PAYWALL_TITLE', '本期为订阅内容')
-            : siteConfig('PAYWALL_MANUAL_TITLE', '本文为订阅内容')}
+            ? text('PAYWALL_TITLE', '本期为订阅内容', 'This issue is for paid subscribers')
+            : text('PAYWALL_MANUAL_TITLE', '本文为订阅内容', 'This article is for paid subscribers')}
         </h2>
         <p className='mb-6 text-sm text-gray-500 dark:text-gray-400'>
-          订阅 RecsysFrontier 阅读{freeDay ? '本期' : '本文'}全文
+          {en
+            ? `Subscribe to RecsysFrontier to read the full ${freeDay ? 'issue' : 'article'}`
+            : `订阅 RecsysFrontier 阅读${freeDay ? '本期' : '本文'}全文`}
         </p>
 
         {Array.isArray(benefits) && benefits.length > 0 && (
@@ -86,14 +95,16 @@ export default function SubstackPaywall({ post }) {
         {freeDay && (
           <p className='mt-5 flex items-center justify-center gap-1.5 text-xs text-gray-400'>
             <i className='far fa-clock' />
-            本期将于 {freeDay.month} 月 {freeDay.day} 日免费开放
+            {en
+              ? `Free to read from ${MONTHS_EN[freeDay.month - 1]} ${freeDay.day} (Beijing time)`
+              : `本期将于 ${freeDay.month} 月 ${freeDay.day} 日免费开放`}
           </p>
         )}
 
         {paywall.freeIssues?.length > 0 && (
           <div className='mx-auto mt-8 max-w-md border-t border-orange-100 pt-6 text-left dark:border-gray-700'>
             <p className='mb-3 text-center text-sm font-semibold text-gray-700 dark:text-gray-300'>
-              往期免费阅读
+              {en ? 'Free past issues' : '往期免费阅读'}
             </p>
             <ul className='flex flex-col gap-1'>
               {paywall.freeIssues.map(issue => (

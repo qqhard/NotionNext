@@ -1,5 +1,8 @@
 import { render, screen } from '@testing-library/react'
 import SubstackPaywall from '@/components/SubstackPaywall'
+import { useRouter } from 'next/router'
+
+jest.mock('next/router', () => ({ useRouter: jest.fn(() => ({ locale: 'zh-CN' })) }))
 
 jest.mock('@/lib/config', () => ({
   siteConfig: (key, defaultVal) =>
@@ -63,4 +66,18 @@ it('uses article wording and hides the free date for need_pay posts', () => {
 it('renders nothing for unlocked posts', () => {
   const { container } = render(<SubstackPaywall post={{}} />)
   expect(container).toBeEmptyDOMElement()
+})
+
+it('uses English copy and hides the Xiaobot entry on the English site', () => {
+  useRouter.mockReturnValue({ locale: 'en' })
+  const freeIssues = [{ title: 'AI Weekly 2026-W46', href: '/article/ai-weekly-2026-W46-en', day: '2026-11-14' }]
+  const { container } = render(
+    <SubstackPaywall post={{ paywall: { freeAt, url: 'https://x.test', isPost: false, freeIssues } }} />
+  )
+  expect(screen.getByText('This issue is for paid subscribers')).toBeInTheDocument()
+  expect(screen.getByText('Free to read from Oct 31 (Beijing time)')).toBeInTheDocument()
+  expect(screen.getByText('Free past issues')).toBeInTheDocument()
+  expect(screen.getByRole('link', { name: 'Subscribe on Substack' })).toBeInTheDocument()
+  expect(container.textContent).not.toMatch(/[\u4e00-\u9fff]/)
+  useRouter.mockReturnValue({ locale: 'zh-CN' })
 })
