@@ -6,6 +6,7 @@ import { useRouter } from 'next/router'
 import { useEffect, useMemo, useState } from 'react'
 import { GlobalStyle } from './GlobalStyle'
 import { initGoogleAdsense } from './GoogleAdsense'
+import { isNoindexPost } from '@/lib/utils/noindex'
 
 import Head from 'next/head'
 import ExternalScript from './ExternalScript'
@@ -200,8 +201,8 @@ const ExternalPlugin = props => {
 
   const router = useRouter()
   useEffect(() => {
-    // 异步渲染谷歌广告
-    if (ADSENSE_GOOGLE_ID) {
+    // 异步渲染谷歌广告；日报、周报这类汇总页不加载广告
+    if (ADSENSE_GOOGLE_ID && !isNoindexPost(props?.post)) {
       setTimeout(() => {
         initGoogleAdsense(ADSENSE_GOOGLE_ID)
       }, 3000)
@@ -218,6 +219,7 @@ const ExternalPlugin = props => {
   }, [
     router,
     ADSENSE_GOOGLE_ID,
+    props?.post,
     INNER_PAGE_URL_PARENT_PATH,
     innerLinkPages,
     lang

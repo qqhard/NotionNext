@@ -8,6 +8,7 @@ import {
   normalizeSitemapLocale,
   toSitemapDateString
 } from '@/lib/sitemap-utils'
+import { isNoindexPost } from '@/lib/utils/noindex'
 import { extractLangId, extractLangPrefix } from '@/lib/utils/pageId'
 import { getServerSideSitemap } from 'next-sitemap'
 
@@ -112,6 +113,8 @@ function generateLocalesSitemap(link, allPages, locale) {
       ?.filter(p => p.status === BLOG.NOTION_PROPERTY_NAME.status_publish)
       // 过滤掉外部链接(http开头)和锚点链接(#开头)
       ?.filter(p => p.slug && !p.slug.startsWith('http') && !p.slug.startsWith('#'))
+      // 日报、周报不进 sitemap
+      ?.filter(p => !isNoindexPost(p))
       ?.map(post => {
         const loc = buildSitemapLoc({
           baseUrl: normalizedLink,
